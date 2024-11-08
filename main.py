@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from config import mycollection as mc
-from model import user_credentials, user
+from model import user_credentials, user, Token
 from utility import hash, verify
+from oauth import create_access_token, verify_token
 
 app = FastAPI()
 
@@ -40,7 +41,19 @@ async def login(user_cred : user_credentials):
         return
         
     print("Succesfully loged in")
+
+    #Create a token and return it 
+    token = create_access_token(data={"username" : user_cred.username})
+
+    return {"acces_token" : token, "token_type" : "bearer"}
+
     
+@app.post("/token_verify_test")
+async def token_verify(token : Token):
+    result = verify_token(token.access_token)
+    return {"result" : result}
+
+
 
 @app.get("/")
 async def root():
